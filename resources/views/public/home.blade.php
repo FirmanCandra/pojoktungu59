@@ -114,7 +114,7 @@
       </div>
 
       <div class="home-art-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
-        @forelse($recentArticles->take(6) as $art)
+        @forelse($recentArticles->take(3) as $art)
           <article class="card">
             <div class="card-image" style="background-image:url('{{ $art->thumbnail_url }}')"></div>
             <div class="card-body">
@@ -142,7 +142,7 @@
       </div>
 
       <div class="home-prog-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
-        @forelse($workPrograms->take(6) as $prog)
+        @forelse($workPrograms->take(3) as $prog)
           <div class="prog-card">
             <div class="prog-img" style="background-image:url('{{ $prog->image_url }}')"></div>
             <div class="prog-body">
