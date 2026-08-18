@@ -58,11 +58,11 @@
     .hoax-icon{width:28px;height:28px;background:#fee2e2;color:#dc2626;border-radius:7px;display:grid;place-items:center;font-size:13px;flex-shrink:0}
     .hoax-header h3{font-size:12px;color:#0f172a;margin:0;font-weight:700}
     .hoax-header span{display:block;font-size:8px;color:#dc2626;font-weight:600}
-    .hoax-item{border:1px solid #e2e8f0;border-left:3px solid #dc2626;border-radius:6px;padding:9px 10px;margin-bottom:8px;transition:box-shadow .2s}
+    .hoax-item{border:1px solid #e2e8f0;border-left:3px solid #dc2626;border-radius:6px;padding:10px 12px;margin-bottom:8px;transition:box-shadow .2s}
     .hoax-item:last-child{margin-bottom:0}
     .hoax-item:hover{box-shadow:0 3px 10px rgba(0,0,0,.06)}
-    .hoax-item-title{font-size:10.5px;font-weight:700;color:#1e293b;margin:4px 0 3px;line-height:1.3}
-    .hoax-item-desc{font-size:9.5px;color:#64748b;line-height:1.45;margin:0}
+    .hoax-item-title{font-size:11px;font-weight:700;color:#1e293b;margin:5px 0 4px;line-height:1.35}
+    .hoax-item-desc{font-size:10px;color:#475569;line-height:1.55;margin:0;white-space:pre-wrap;word-break:break-word}
     .hoax-badge{display:inline-block;font-size:7.5px;font-weight:700;padding:2px 6px;border-radius:4px;letter-spacing:.3px}
 
     /* ── CTA Banner ── */
@@ -75,6 +75,12 @@
       .hero-copy{padding:130px 18px 20px}
       .home-art-grid{grid-template-columns:1fr}
       .home-prog-grid{grid-template-columns:1fr}
+      /* Sidebar di mobile: tampil dalam satu kolom di bawah main content */
+      .hoax-block{border-top-width:4px}
+      .hoax-item-title{font-size:12px}
+      .hoax-item-desc{font-size:10.5px;line-height:1.6}
+      .cta-banner{padding:18px 16px}
+      .cta-banner h2{font-size:16px}
     }
   </style>
 
@@ -187,7 +193,7 @@
               {{ $ann->type_label }}
             </span>
             <div class="hoax-item-title">{{ $ann->title }}</div>
-            <p class="hoax-item-desc">{!! nl2br(e(Str::limit($ann->content, 90))) !!}</p>
+            <p class="hoax-item-desc">{!! nl2br(e($ann->content)) !!}</p>
           </div>
         @empty
           <p style="font-size:10px;color:#777;margin:0">Belum ada pengumuman.</p>

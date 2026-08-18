@@ -112,15 +112,24 @@
     @media(max-width:760px){
       .site-header{height:62px;padding:0 16px}
       .menu-button{display:block}
-      nav{display:none;position:absolute;top:62px;left:0;right:0;background:#fff;border-bottom:1px solid var(--line);flex-direction:column;padding:12px 16px;gap:0}
+      nav{display:none;position:absolute;top:62px;left:0;right:0;background:#fff;border-bottom:1px solid var(--line);flex-direction:column;padding:12px 16px;gap:0;z-index:99}
       nav.open{display:flex}
       nav a{padding:10px 0;border-bottom:1px solid var(--line);font-size:13px}
-      .content-grid{grid-template-columns:1fr;padding:0 12px}
+      .content-grid{grid-template-columns:1fr;padding:0 12px;gap:16px}
       .cards{grid-template-columns:repeat(2,1fr)}
       .section-pad{margin:0 12px 25px;padding:25px 14px}
       .filters{flex-wrap:wrap}
       .list-item{grid-template-columns:90px 1fr}
       .list-item img{width:90px;height:90px}
+      /* Sidebar tampil di bawah main content */
+      .sidebar{width:100%;gap:12px}
+      .side-block{padding:12px}
+      .side-block h3{font-size:13px}
+      .side-block li{font-size:11px}
+      .search-box input{font-size:12px}
+      /* Hoax block lebih readable di mobile */
+      .hoax-block{padding:12px}
+      .hoax-header h3{font-size:13px}
     }
   </style>
 </head>
