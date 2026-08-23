@@ -15,14 +15,14 @@
       <!-- Main Form -->
       <div class="panel">
         <div class="form-group">
-          <label for="title">Judul Artikel *</label>
-          <input type="text" id="title" name="title" value="{{ old('title', $article->title) }}" required class="form-control" style="font-size:16px;font-weight:600">
+          <label for="title">Judul Artikel <small class="form-text" style="font-weight:normal">(Opsional)</small></label>
+          <input type="text" id="title" name="title" value="{{ old('title', $article->title) }}" class="form-control" style="font-size:16px;font-weight:600">
           @error('title') <div class="form-error">{{ $message }}</div> @enderror
         </div>
 
         <div class="form-group">
-          <label for="content">Isi Konten Artikel *</label>
-          <textarea id="content" name="content" required rows="14" class="form-control">{{ old('content', $article->content) }}</textarea>
+          <label for="content">Isi Konten Artikel <small class="form-text" style="font-weight:normal">(Opsional)</small></label>
+          <textarea id="content" name="content" rows="14" class="form-control">{{ old('content', $article->content) }}</textarea>
           @error('content') <div class="form-error">{{ $message }}</div> @enderror
         </div>
       </div>
@@ -67,6 +67,25 @@
           </div>
 
           <div class="form-group">
+            <label for="pdf_file">📄 File PDF (Opsional)</label>
+            @if($article->pdf_file)
+              <div style="margin-bottom:8px;padding:8px 12px;background:#f0f4ff;border:1px solid #c7d7fa;border-radius:6px;font-size:13px;color:#3b4a6b">
+                📎 <a href="{{ asset('storage/' . $article->pdf_file) }}" target="_blank" style="color:#4a6cf7;text-decoration:none;font-weight:500">Lihat / Unduh PDF saat ini</a>
+              </div>
+              <label style="display:flex;align-items:center;gap:6px;font-size:13px;font-weight:normal;cursor:pointer;margin-bottom:6px">
+                <input type="checkbox" name="remove_pdf" value="1" {{ old('remove_pdf') ? 'checked' : '' }}>
+                Hapus PDF yang ada
+              </label>
+            @endif
+            <input type="file" id="pdf_file" name="pdf_file" accept=".pdf,application/pdf" class="form-control" onchange="previewPdf(this)">
+            <small class="form-text">Maks. 10 MB. Pilih file baru untuk mengganti PDF lama.</small>
+            <div id="pdfInfo" style="display:none;margin-top:6px;padding:8px 12px;background:#f0f4ff;border:1px solid #c7d7fa;border-radius:6px;font-size:13px;color:#3b4a6b">
+              📎 <span id="pdfName"></span>
+            </div>
+            @error('pdf_file') <div class="form-error">{{ $message }}</div> @enderror
+          </div>
+
+          <div class="form-group">
             <label for="published_at">Tanggal Terbit</label>
             <input type="datetime-local" id="published_at" name="published_at" value="{{ old('published_at', $article->published_at ? $article->published_at->format('Y-m-d\TH:i') : '') }}" class="form-control">
           </div>
@@ -84,6 +103,16 @@
         const reader = new FileReader();
         reader.onload = e => { img.src = e.target.result; img.style.display = 'block'; };
         reader.readAsDataURL(input.files[0]);
+      }
+    }
+    function previewPdf(input) {
+      const info = document.getElementById('pdfInfo');
+      const name = document.getElementById('pdfName');
+      if (input.files && input.files[0]) {
+        name.textContent = input.files[0].name;
+        info.style.display = 'block';
+      } else {
+        info.style.display = 'none';
       }
     }
   </script>

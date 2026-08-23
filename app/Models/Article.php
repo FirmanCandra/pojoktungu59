@@ -16,6 +16,7 @@ class Article extends Model
         'slug',
         'content',
         'thumbnail',
+        'pdf_file',
         'category',
         'status',
         'published_at',

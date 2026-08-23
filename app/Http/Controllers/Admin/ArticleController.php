@@ -36,7 +36,29 @@ class ArticleController extends Controller
     {
         $data = $request->validated();
         $data['user_id'] = auth()->id();
-        $data['slug']    = Article::generateUniqueSlug($data['title']);
+
+        // Upload PDF terlebih dahulu supaya bisa dipakai sebagai fallback judul
+        if ($request->hasFile('pdf_file')) {
+            $pdfFile = $request->file('pdf_file');
+            $data['pdf_file'] = $pdfFile->store('articles/pdf', 'public');
+
+            // Auto-isi judul dari nama file PDF jika judul tidak diisi
+            if (empty($data['title'])) {
+                $data['title'] = pathinfo($pdfFile->getClientOriginalName(), PATHINFO_FILENAME);
+            }
+        }
+
+        // Wajib ada judul (minimal dari PDF)
+        if (empty($data['title'])) {
+            $data['title'] = 'Artikel ' . now()->format('d/m/Y H:i');
+        }
+
+        // Konten boleh kosong
+        if (empty($data['content'])) {
+            $data['content'] = '';
+        }
+
+        $data['slug'] = Article::generateUniqueSlug($data['title']);
 
         if ($request->hasFile('thumbnail')) {
             $data['thumbnail'] = $request->file('thumbnail')->store('articles', 'public');
@@ -65,6 +87,36 @@ class ArticleController extends Controller
     {
         $data = $request->validated();
 
+        // Upload PDF dulu agar bisa jadi fallback judul
+        if ($request->hasFile('pdf_file')) {
+            if ($article->pdf_file) {
+                Storage::disk('public')->delete($article->pdf_file);
+            }
+            $pdfFile = $request->file('pdf_file');
+            $data['pdf_file'] = $pdfFile->store('articles/pdf', 'public');
+
+            // Auto-isi judul dari nama file PDF jika judul dikosongkan
+            if (empty($data['title'])) {
+                $data['title'] = pathinfo($pdfFile->getClientOriginalName(), PATHINFO_FILENAME);
+            }
+        }
+
+        // Hapus PDF jika user centang remove_pdf
+        if ($request->boolean('remove_pdf') && $article->pdf_file) {
+            Storage::disk('public')->delete($article->pdf_file);
+            $data['pdf_file'] = null;
+        }
+
+        // Jika judul tetap kosong, pakai judul lama
+        if (empty($data['title'])) {
+            $data['title'] = $article->title;
+        }
+
+        // Konten boleh kosong
+        if (!isset($data['content'])) {
+            $data['content'] = $article->content;
+        }
+
         if ($request->hasFile('thumbnail')) {
             if ($article->thumbnail) {
                 Storage::disk('public')->delete($article->thumbnail);
@@ -85,6 +137,9 @@ class ArticleController extends Controller
     {
         if ($article->thumbnail) {
             Storage::disk('public')->delete($article->thumbnail);
+        }
+        if ($article->pdf_file) {
+            Storage::disk('public')->delete($article->pdf_file);
         }
         $article->delete();
 

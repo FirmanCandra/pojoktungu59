@@ -1,7 +1,7 @@
 @extends('layouts.public')
 
-@section('title', $article->title)
-@section('meta_description', Str::limit(strip_tags($article->content), 150))
+@section('title', $article->title ?? 'Artikel')
+@section('meta_description', Str::limit(strip_tags($article->content ?? ''), 150))
 
 @section('content')
   <section class="article-detail section-pad">
@@ -29,9 +29,74 @@
           </div>
         @endif
 
-        <div class="article-body-content" style="font-size:13px;line-height:1.8;color:#334155;white-space:pre-line">
-          {!! nl2br(e($article->content)) !!}
-        </div>
+        @if($article->pdf_file)
+          {{-- ===== PDF.js RENDERER — semua halaman tampil sekaligus ===== --}}
+          <div style="margin:24px 0">
+
+            {{-- Loading --}}
+            <div id="pdf-loading" style="text-align:center;padding:30px 0;color:#64748b;font-size:12px">
+              <div style="display:inline-block;width:28px;height:28px;border:3px solid #e2e8f0;border-top-color:#4a6cf7;border-radius:50%;animation:spin .7s linear infinite;margin-bottom:10px"></div>
+              <br>Memuat dokumen...
+            </div>
+
+            {{-- Semua halaman PDF tampil sekaligus --}}
+            <div id="pdf-pages" style="display:flex;flex-direction:column;gap:0"></div>
+
+            {{-- Error --}}
+            <div id="pdf-error" style="display:none;text-align:center;padding:24px;background:#fff5f5;border:1px solid #fecaca;border-radius:8px;color:#dc2626;font-size:12px">
+              Gagal memuat dokumen.
+              <a href="{{ asset('storage/' . $article->pdf_file) }}" target="_blank" style="color:#4a6cf7;margin-left:6px">Unduh PDF</a>
+            </div>
+          </div>
+
+          <style>
+            @keyframes spin { to { transform: rotate(360deg); } }
+            #pdf-pages canvas {
+              width: 100% !important;
+              height: auto !important;
+              display: block;
+              background: #fff;
+            }
+          </style>
+
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+          <script>
+            (function () {
+              const pdfUrl = "{{ asset('storage/' . $article->pdf_file) }}";
+              const SCALE  = 1.8;
+
+              pdfjsLib.GlobalWorkerOptions.workerSrc =
+                'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+              pdfjsLib.getDocument(pdfUrl).promise.then(async function (doc) {
+                document.getElementById('pdf-loading').style.display = 'none';
+                const container = document.getElementById('pdf-pages');
+
+                // Render semua halaman berurutan
+                for (let i = 1; i <= doc.numPages; i++) {
+                  const page   = await doc.getPage(i);
+                  const vp     = page.getViewport({ scale: SCALE });
+                  const canvas = document.createElement('canvas');
+                  const ctx    = canvas.getContext('2d');
+                  canvas.width  = vp.width;
+                  canvas.height = vp.height;
+                  await page.render({ canvasContext: ctx, viewport: vp }).promise;
+                  container.appendChild(canvas);
+                }
+              }).catch(function () {
+                document.getElementById('pdf-loading').style.display = 'none';
+                document.getElementById('pdf-error').style.display   = 'block';
+              });
+            })();
+          </script>
+        @endif
+
+
+        @if($article->content)
+          <div class="article-body-content" style="font-size:13px;line-height:1.8;color:#334155;white-space:pre-line">
+            {!! nl2br(e($article->content)) !!}
+          </div>
+        @endif
 
         <div style="margin-top:40px;padding-top:20px;border-top:1px solid var(--line);display:flex;justify-content:space-between;align-items:center">
           <a href="{{ route('articles.index') }}" class="btn-outline">← Kembali ke Artikel</a>

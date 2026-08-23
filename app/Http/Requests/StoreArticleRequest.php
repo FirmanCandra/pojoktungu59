@@ -11,11 +11,12 @@ class StoreArticleRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title'        => 'required|string|max:255',
-            'content'      => 'required|string',
+            'title'        => 'nullable|string|max:255',
+            'content'      => 'nullable|string',
             'category'     => 'required|string|max:100',
             'status'       => 'required|in:draft,published',
             'thumbnail'    => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
+            'pdf_file'     => 'nullable|mimes:pdf|max:10240',
             'published_at' => 'nullable|date',
         ];
     }
