@@ -70,6 +70,7 @@ class Article extends Model
         if ($this->thumbnail) {
             return asset('storage/' . $this->thumbnail);
         }
-        return 'https://images.unsplash.com/photo-1470770841072-f978cf4d019e?auto=format&fit=crop&w=800&q=80';
+        // Placeholder lokal — tidak butuh koneksi internet
+        return asset('images/no-thumbnail.svg');
     }
 }

@@ -30,8 +30,8 @@
         @endif
 
         @if($article->pdf_file)
-          {{-- ===== PDF.js RENDERER — semua halaman tampil sekaligus ===== --}}
-          <div style="margin:24px 0">
+          {{-- ===== PDF.js RENDERER — cross-device compatible ===== --}}
+          <div style="margin:24px 0" id="pdf-wrapper">
 
             {{-- Loading --}}
             <div id="pdf-loading" style="text-align:center;padding:30px 0;color:#64748b;font-size:12px">
@@ -39,13 +39,24 @@
               <br>Memuat dokumen...
             </div>
 
-            {{-- Semua halaman PDF tampil sekaligus --}}
+            {{-- Semua halaman PDF --}}
             <div id="pdf-pages" style="display:flex;flex-direction:column;gap:0"></div>
 
-            {{-- Error --}}
+            {{-- Fallback iframe (tampil jika PDF.js gagal) --}}
+            <div id="pdf-fallback" style="display:none">
+              <iframe
+                src="{{ asset('storage/' . $article->pdf_file) }}"
+                width="100%" height="800"
+                style="border:1px solid #e2e8f0;border-radius:8px;display:block"
+                title="Dokumen PDF">
+              </iframe>
+            </div>
+
+            {{-- Error total --}}
             <div id="pdf-error" style="display:none;text-align:center;padding:24px;background:#fff5f5;border:1px solid #fecaca;border-radius:8px;color:#dc2626;font-size:12px">
-              Gagal memuat dokumen.
-              <a href="{{ asset('storage/' . $article->pdf_file) }}" target="_blank" style="color:#4a6cf7;margin-left:6px">Unduh PDF</a>
+              Dokumen tidak dapat ditampilkan di perangkat ini.
+              <a href="{{ asset('storage/' . $article->pdf_file) }}" target="_blank"
+                 style="color:#4a6cf7;margin-left:6px;font-weight:600">⬇ Unduh PDF</a>
             </div>
           </div>
 
@@ -59,35 +70,76 @@
             }
           </style>
 
-          <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+          {{-- Gunakan versi stabil pdf.js --}}
           <script>
+            // Muat pdf.js dari CDN, dengan fallback manual
             (function () {
-              const pdfUrl = "{{ asset('storage/' . $article->pdf_file) }}";
-              const SCALE  = 1.8;
-
-              pdfjsLib.GlobalWorkerOptions.workerSrc =
-                'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-
-              pdfjsLib.getDocument(pdfUrl).promise.then(async function (doc) {
-                document.getElementById('pdf-loading').style.display = 'none';
-                const container = document.getElementById('pdf-pages');
-
-                // Render semua halaman berurutan
-                for (let i = 1; i <= doc.numPages; i++) {
-                  const page   = await doc.getPage(i);
-                  const vp     = page.getViewport({ scale: SCALE });
-                  const canvas = document.createElement('canvas');
-                  const ctx    = canvas.getContext('2d');
-                  canvas.width  = vp.width;
-                  canvas.height = vp.height;
-                  await page.render({ canvasContext: ctx, viewport: vp }).promise;
-                  container.appendChild(canvas);
-                }
-              }).catch(function () {
-                document.getElementById('pdf-loading').style.display = 'none';
-                document.getElementById('pdf-error').style.display   = 'block';
-              });
+              const script = document.createElement('script');
+              script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js';
+              script.onload = initPdfJs;
+              script.onerror = showFallback;
+              document.head.appendChild(script);
             })();
+
+            function showFallback() {
+              document.getElementById('pdf-loading').style.display  = 'none';
+              document.getElementById('pdf-fallback').style.display = 'block';
+            }
+
+            async function initPdfJs() {
+              const pdfUrl = "{{ asset('storage/' . $article->pdf_file) }}";
+
+              // Gunakan fake worker (tidak butuh worker CDN terpisah) — lebih kompatibel
+              pdfjsLib.GlobalWorkerOptions.workerSrc =
+                'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+
+              // Scale adaptif: lebih kecil di mobile agar tidak crash memori
+              const isMobile = window.innerWidth < 768;
+              const SCALE    = isMobile ? 1.2 : 1.6;
+
+              try {
+                const loadTask = pdfjsLib.getDocument({
+                  url: pdfUrl,
+                  cMapUrl: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/cmaps/',
+                  cMapPacked: true,
+                });
+
+                const doc       = await loadTask.promise;
+                const container = document.getElementById('pdf-pages');
+                document.getElementById('pdf-loading').style.display = 'none';
+
+                for (let i = 1; i <= doc.numPages; i++) {
+                  try {
+                    const page   = await doc.getPage(i);
+                    const vp     = page.getViewport({ scale: SCALE });
+                    const canvas = document.createElement('canvas');
+                    const ctx    = canvas.getContext('2d');
+
+                    // Batasi ukuran canvas agar tidak crash di HP low-end
+                    const maxW   = Math.min(vp.width, 1800);
+                    const ratio  = maxW / vp.width;
+                    canvas.width  = vp.width  * ratio;
+                    canvas.height = vp.height * ratio;
+
+                    const scaledVp = page.getViewport({ scale: SCALE * ratio });
+                    await page.render({ canvasContext: ctx, viewport: scaledVp }).promise;
+                    container.appendChild(canvas);
+                  } catch (pageErr) {
+                    console.warn('Gagal render halaman ' + i, pageErr);
+                    // Lanjut ke halaman berikutnya meski satu halaman gagal
+                  }
+                }
+
+                // Jika tidak ada canvas yang berhasil di-render, tampilkan fallback
+                if (container.children.length === 0) {
+                  showFallback();
+                }
+
+              } catch (err) {
+                console.error('PDF.js error:', err);
+                showFallback();
+              }
+            }
           </script>
         @endif
 
