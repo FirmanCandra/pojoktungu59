@@ -92,9 +92,7 @@
         <h1><a href="{{ route('articles.show', $featuredArticle->slug) }}">{{ $featuredArticle->title }}</a></h1>
         <p>{{ Str::limit(strip_tags($featuredArticle->content), 110) }}</p>
         <div class="byline">
-          <span class="avatar">{{ strtoupper(substr($featuredArticle->user->name ?? 'Admin', 0, 1)) }}</span>
-          {{ $featuredArticle->user->name ?? 'Admin' }}
-          <i>•</i> {{ $featuredArticle->published_at ? $featuredArticle->published_at->translatedFormat('d F Y') : $featuredArticle->created_at->translatedFormat('d F Y') }}
+          {{ $featuredArticle->published_at ? $featuredArticle->published_at->translatedFormat('d F Y') : $featuredArticle->created_at->translatedFormat('d F Y') }}
         </div>
       @else
         <h1>Selamat Datang di Pojok Informasi</h1>
@@ -123,7 +121,6 @@
               <p>{{ Str::limit(strip_tags($art->content), 55) }}</p>
               <div class="card-foot">
                 <div class="card-foot-left">
-                  <span class="avatar">{{ strtoupper(substr($art->user->name ?? 'A', 0, 1)) }}</span>
                   <span>{{ $art->created_at->format('d M Y') }}</span>
                 </div>
                 <a href="{{ route('articles.show', $art->slug) }}" class="card-foot-link">Baca →</a>

@@ -17,8 +17,6 @@
         <h1 style="font-size:26px;margin:12px 0 10px;line-height:1.3">{{ $article->title }}</h1>
         
         <div class="byline dark" style="margin-bottom:20px">
-          <span class="avatar">{{ strtoupper(substr($article->user->name ?? 'A', 0, 1)) }}</span>
-          Penulis: <strong>{{ $article->user->name ?? 'Admin' }}</strong> <i>•</i> 
           {{ $article->published_at ? $article->published_at->translatedFormat('d F Y') : $article->created_at->translatedFormat('d F Y') }} <i>•</i> 
           Kategori: {{ $article->category }}
         </div>

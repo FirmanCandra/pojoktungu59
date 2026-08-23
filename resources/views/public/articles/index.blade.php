@@ -99,8 +99,7 @@
               <h3><a href="{{ route('articles.show', $art->slug) }}">{{ $art->title }}</a></h3>
               <p>{{ Str::limit(strip_tags($art->content), 110) }}</p>
               <div class="art-byline">
-                <span class="avatar">{{ strtoupper(substr($art->user->name ?? 'A', 0, 1)) }}</span>
-                {{ $art->user->name ?? 'Admin' }} <i>•</i> {{ $art->created_at->translatedFormat('d M Y') }}
+                {{ $art->created_at->translatedFormat('d M Y') }}
                 <a href="{{ route('articles.show', $art->slug) }}">Baca Selengkapnya →</a>
               </div>
             </div>
