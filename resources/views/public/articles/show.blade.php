@@ -143,7 +143,7 @@
 
 
         @if($article->content)
-          <div class="article-body-content" style="font-size:13px;line-height:1.8;color:#334155;white-space:pre-line">
+          <div class="article-body-content" style="font-size:13px;line-height:1.8;color:#334155">
             {!! nl2br(e($article->content)) !!}
           </div>
         @endif
