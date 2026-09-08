@@ -178,18 +178,6 @@ Akses aplikasi di: **http://127.0.0.1:8000**
 
 ---
 
-## 🔑 Akun Admin Default
-
-| Field        | Nilai              |
-| ------------ | ------------------ |
-| **URL Login**| `/login`           |
-| **Email**    | `admin@pojok.id`   |
-| **Password** | `tungu59`          |
-
-> ⚠️ **Penting:** Segera ubah password admin setelah instalasi di lingkungan production!
-
----
-
 ## 📁 Struktur Proyek
 
 ```
