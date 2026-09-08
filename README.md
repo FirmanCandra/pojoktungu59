@@ -524,12 +524,5 @@ Project ini menggunakan framework Laravel yang berlisensi [MIT License](https://
 
 ---
 
-## 👥 Kontributor
 
-- **Firman Candra** — Developer Utama
 
----
-
-<p align="center">
-  Dibuat dengan ❤️ menggunakan <strong>Laravel 12</strong>
-</p>
